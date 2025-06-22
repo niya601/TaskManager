@@ -165,8 +165,8 @@ function Dashboard() {
         </svg>
       </div>
 
-      {/* Header */}
-      <div className="relative z-10 flex justify-between items-center p-6">
+      {/* Header with proper z-index */}
+      <div className="relative z-30 flex justify-between items-center p-6">
         <Link 
           to="/" 
           className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
@@ -176,17 +176,17 @@ function Dashboard() {
         </Link>
         
         <div className="flex items-center gap-4">
-          {/* User Account Display */}
+          {/* User Account Display with proper positioning */}
           <div className="relative">
             <button
               ref={userMenuRef}
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
             >
-              <span className="font-medium">
+              <span className="font-medium truncate max-w-[150px] sm:max-w-[200px]">
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account'}
               </span>
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
             </button>
             
             <UserMenu 
@@ -198,7 +198,7 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Content with lower z-index */}
       <div className="relative z-10 flex flex-col items-center px-4 py-8">
         {/* Logo/Icon Section */}
         <div className="mb-8 transform hover:scale-105 transition-transform duration-300">

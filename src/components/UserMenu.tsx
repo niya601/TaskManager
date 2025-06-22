@@ -49,6 +49,20 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
     }
   }, [isOpen, onClose, anchorRef]);
 
+  // Close menu on escape key
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const themeOptions = [
@@ -59,69 +73,83 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
   ];
 
   return (
-    <div className="relative">
-      <div
-        ref={menuRef}
-        className="absolute right-0 top-2 w-64 bg-gray-900 rounded-lg shadow-xl border border-gray-700 py-2 z-50"
-      >
-        {/* User Email Header */}
-        <div className="px-4 py-3 border-b border-gray-700">
-          <p className="text-sm text-white font-medium">
-            {user?.email}
-          </p>
-        </div>
-
-        {/* Menu Items */}
-        <div className="py-2">
-          {/* Account Preferences */}
-          <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors">
-            <Settings className="w-4 h-4" />
-            <span>Account preferences</span>
-          </button>
-        </div>
-
-        {/* Theme Section */}
-        <div className="py-2">
-          <div className="px-4 py-2">
-            <p className="text-sm text-gray-400 font-medium">
-              Theme
+    <>
+      {/* Backdrop overlay for mobile */}
+      <div 
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 md:hidden"
+        onClick={onClose}
+      />
+      
+      {/* Menu container with proper positioning */}
+      <div className="absolute right-0 top-full mt-2 z-50">
+        <div
+          ref={menuRef}
+          className="w-64 bg-gray-900 rounded-lg shadow-2xl border border-gray-700 py-2 transform transition-all duration-200 ease-out"
+          style={{
+            // Ensure menu stays within viewport
+            maxHeight: 'calc(100vh - 100px)',
+            overflowY: 'auto'
+          }}
+        >
+          {/* User Email Header */}
+          <div className="px-4 py-3 border-b border-gray-700">
+            <p className="text-sm text-white font-medium truncate">
+              {user?.email}
             </p>
           </div>
-          
-          <div className="space-y-1">
-            {themeOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => handleThemeChange(option.value as any)}
-                className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-              >
-                <div className="w-4 h-4 flex items-center justify-center">
-                  {theme === option.value ? (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  ) : (
-                    <div className="w-2 h-2 border border-gray-500 rounded-full"></div>
-                  )}
-                </div>
-                <span>{option.label}</span>
-              </button>
-            ))}
+
+          {/* Menu Items */}
+          <div className="py-2">
+            {/* Account Preferences */}
+            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors">
+              <Settings className="w-4 h-4 flex-shrink-0" />
+              <span>Account preferences</span>
+            </button>
+          </div>
+
+          {/* Theme Section */}
+          <div className="py-2">
+            <div className="px-4 py-2">
+              <p className="text-sm text-gray-400 font-medium">
+                Theme
+              </p>
+            </div>
+            
+            <div className="space-y-1">
+              {themeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => handleThemeChange(option.value as any)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
+                >
+                  <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                    {theme === option.value ? (
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
+                    ) : (
+                      <div className="w-2 h-2 border border-gray-500 rounded-full"></div>
+                    )}
+                  </div>
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 my-2"></div>
+
+          {/* Log Out */}
+          <div className="py-2">
+            <button 
+              onClick={handleSignOut}
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              <span>Log out</span>
+            </button>
           </div>
         </div>
-
-        <div className="border-t border-gray-700 my-2"></div>
-
-        {/* Log Out */}
-        <div className="py-2">
-          <button 
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Log out</span>
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 }
 

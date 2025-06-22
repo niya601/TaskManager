@@ -23,19 +23,19 @@ function Home() {
         </svg>
       </div>
 
-      {/* Header with User Account */}
+      {/* Header with User Account - proper z-index */}
       {user && (
-        <div className="absolute top-6 right-6 z-20">
+        <div className="absolute top-6 right-6 z-30">
           <div className="relative">
             <button
               ref={userMenuRef}
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
             >
-              <span className="font-medium">
+              <span className="font-medium truncate max-w-[150px] sm:max-w-[200px]">
                 {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Account'}
               </span>
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showUserMenu ? 'rotate-180' : ''}`} />
             </button>
             
             <UserMenu 
