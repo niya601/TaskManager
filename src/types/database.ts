@@ -36,6 +36,35 @@ export interface Database {
           updated_at?: string
         }
       }
+      user_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          theme: 'light' | 'dark' | 'classic-dark' | 'system'
+          feature_previews: boolean
+          command_menu_enabled: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          theme?: 'light' | 'dark' | 'classic-dark' | 'system'
+          feature_previews?: boolean
+          command_menu_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          theme?: 'light' | 'dark' | 'classic-dark' | 'system'
+          feature_previews?: boolean
+          command_menu_enabled?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }

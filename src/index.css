@@ -1,3 +1,39 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Theme-specific styles */
+.classic-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
+  color: rgb(248 250 252);
+}
+
+/* Custom scrollbar for dark themes */
+.dark::-webkit-scrollbar,
+.classic-dark::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark::-webkit-scrollbar-track,
+.classic-dark::-webkit-scrollbar-track {
+  background: rgb(31 41 55);
+}
+
+.dark::-webkit-scrollbar-thumb,
+.classic-dark::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+  border-radius: 4px;
+}
+
+.dark::-webkit-scrollbar-thumb:hover,
+.classic-dark::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
