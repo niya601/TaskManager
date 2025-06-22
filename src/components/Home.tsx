@@ -1,13 +1,16 @@
 import React from 'react';
-import { CheckSquare, LogIn, UserPlus, LayoutDashboard } from 'lucide-react';
+import { CheckSquare, LogIn, UserPlus, LayoutDashboard, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import UserMenu from './UserMenu';
 
 function Home() {
   const { user } = useAuth();
+  const [showUserMenu, setShowUserMenu] = React.useState(false);
+  const userMenuRef = React.useRef<HTMLButtonElement>(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 classic-dark:from-black classic-dark:via-gray-900 classic-dark:to-gray-800 relative overflow-hidden transition-colors duration-300">
       {/* Background Pattern Overlay */}
       <div className="absolute inset-0 opacity-10">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -19,6 +22,30 @@ function Home() {
           <rect width="100%" height="100%" fill="url(#grid)" />
         </svg>
       </div>
+
+      {/* Header with User Account */}
+      {user && (
+        <div className="absolute top-6 right-6 z-20">
+          <div className="relative">
+            <button
+              ref={userMenuRef}
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
+            >
+              <span className="font-medium">
+                {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Account'}
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
+            
+            <UserMenu 
+              isOpen={showUserMenu}
+              onClose={() => setShowUserMenu(false)}
+              anchorRef={userMenuRef}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8">
@@ -77,32 +104,32 @@ function Home() {
         {/* Feature Highlights */}
         <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full px-4">
           <div className="text-center">
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 transition-all duration-300 shadow-lg">
+            <div className="bg-white/80 dark:bg-gray-800/80 classic-dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 dark:hover:bg-gray-800/90 classic-dark:hover:bg-gray-900/90 transition-all duration-300 shadow-lg">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <CheckSquare className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-gray-800 font-semibold text-lg mb-2">Easy Task Creation</h3>
-              <p className="text-gray-600 text-sm">Create and organize tasks with just a few clicks</p>
+              <h3 className="text-gray-800 dark:text-gray-200 classic-dark:text-gray-100 font-semibold text-lg mb-2">Easy Task Creation</h3>
+              <p className="text-gray-600 dark:text-gray-400 classic-dark:text-gray-300 text-sm">Create and organize tasks with just a few clicks</p>
             </div>
           </div>
 
           <div className="text-center">
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 transition-all duration-300 shadow-lg">
+            <div className="bg-white/80 dark:bg-gray-800/80 classic-dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 dark:hover:bg-gray-800/90 classic-dark:hover:bg-gray-900/90 transition-all duration-300 shadow-lg">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LayoutDashboard className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-gray-800 font-semibold text-lg mb-2">Smart Dashboard</h3>
-              <p className="text-gray-600 text-sm">Track your progress with intuitive insights</p>
+              <h3 className="text-gray-800 dark:text-gray-200 classic-dark:text-gray-100 font-semibold text-lg mb-2">Smart Dashboard</h3>
+              <p className="text-gray-600 dark:text-gray-400 classic-dark:text-gray-300 text-sm">Track your progress with intuitive insights</p>
             </div>
           </div>
 
           <div className="text-center">
-            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 transition-all duration-300 shadow-lg">
+            <div className="bg-white/80 dark:bg-gray-800/80 classic-dark:bg-gray-900/80 backdrop-blur-sm rounded-lg p-6 hover:bg-white/90 dark:hover:bg-gray-800/90 classic-dark:hover:bg-gray-900/90 transition-all duration-300 shadow-lg">
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <UserPlus className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-gray-800 font-semibold text-lg mb-2">Secure Authentication</h3>
-              <p className="text-gray-600 text-sm">Your data is safe with enterprise-grade security</p>
+              <h3 className="text-gray-800 dark:text-gray-200 classic-dark:text-gray-100 font-semibold text-lg mb-2">Secure Authentication</h3>
+              <p className="text-gray-600 dark:text-gray-400 classic-dark:text-gray-300 text-sm">Your data is safe with enterprise-grade security</p>
             </div>
           </div>
         </div>

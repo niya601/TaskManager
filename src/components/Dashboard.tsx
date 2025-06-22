@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { CheckSquare, Plus, LogOut, ArrowLeft, Filter, AlertCircle, Circle, Minus, Calendar, FileText, Clock, Play, CheckCircle2, X, Loader, User } from 'lucide-react';
+import { CheckSquare, Plus, ArrowLeft, Filter, AlertCircle, Circle, Minus, Calendar, FileText, Clock, Play, CheckCircle2, X, Loader, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../hooks/useTasks';
@@ -10,7 +10,7 @@ type Priority = 'high' | 'medium' | 'low';
 type Status = 'pending' | 'in-progress' | 'done';
 
 function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const { actualTheme } = useTheme();
   const { tasks, loading, error, addTask, updateTask, deleteTask, toggleTask } = useTasks();
   
@@ -25,10 +25,6 @@ function Dashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLButtonElement>(null);
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,21 +176,17 @@ function Dashboard() {
         </Link>
         
         <div className="flex items-center gap-4">
-          {user && (
-            <div className="text-white/90 text-sm">
-              Welcome, {user.user_metadata?.full_name || user.email}
-            </div>
-          )}
-          
-          {/* User Menu Button */}
+          {/* User Account Display */}
           <div className="relative">
             <button
               ref={userMenuRef}
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
             >
-              <User className="w-5 h-5" />
-              <span className="font-medium">Account</span>
+              <span className="font-medium">
+                {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Account'}
+              </span>
+              <ChevronDown className="w-4 h-4" />
             </button>
             
             <UserMenu 
