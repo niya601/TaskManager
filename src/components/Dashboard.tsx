@@ -1,115 +1,63 @@
 import React, { useState } from 'react';
-import { CheckSquare, Plus, LogOut, ArrowLeft, Filter, AlertCircle, Circle, Minus, Calendar, FileText, Clock, Play, Pause, CheckCircle2, X } from 'lucide-react';
+import { CheckSquare, Plus, LogOut, ArrowLeft, Filter, AlertCircle, Circle, Minus, Calendar, FileText, Clock, Play, CheckCircle2, X, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useTasks } from '../hooks/useTasks';
 
 type Priority = 'high' | 'medium' | 'low';
-type Status = 'not-started' | 'in-progress' | 'completed' | 'on-hold';
-
-interface Task {
-  id: number;
-  text: string;
-  completed: boolean;
-  priority: Priority;
-  startDate: string;
-  status: Status;
-  notes: string;
-}
+type Status = 'pending' | 'in-progress' | 'done';
 
 function Dashboard() {
   const { user, signOut } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([
-    { 
-      id: 1, 
-      text: 'Finish homework', 
-      completed: false, 
-      priority: 'high',
-      startDate: '2025-01-15',
-      status: 'in-progress',
-      notes: 'Math assignment due tomorrow'
-    },
-    { 
-      id: 2, 
-      text: 'Call John', 
-      completed: true, 
-      priority: 'medium',
-      startDate: '2025-01-14',
-      status: 'completed',
-      notes: 'Discuss project timeline'
-    },
-    { 
-      id: 3, 
-      text: 'Buy groceries', 
-      completed: false, 
-      priority: 'low',
-      startDate: '2025-01-16',
-      status: 'not-started',
-      notes: 'Milk, bread, eggs, vegetables'
-    },
-  ]);
+  const { tasks, loading, error, addTask, updateTask, deleteTask, toggleTask } = useTasks();
   
   const [newTask, setNewTask] = useState('');
   const [newTaskPriority, setNewTaskPriority] = useState<Priority>('medium');
   const [newTaskStartDate, setNewTaskStartDate] = useState('');
-  const [newTaskStatus, setNewTaskStatus] = useState<Status>('not-started');
+  const [newTaskStatus, setNewTaskStatus] = useState<Status>('pending');
   const [newTaskNotes, setNewTaskNotes] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
-  const [expandedTask, setExpandedTask] = useState<number | null>(null);
+  const [expandedTask, setExpandedTask] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
   };
 
-  const addTask = (e: React.FormEvent) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newTask.trim()) {
-      setTasks([...tasks, { 
-        id: Date.now(), 
-        text: newTask.trim(), 
-        completed: newTaskStatus === 'completed',
-        priority: newTaskPriority,
-        startDate: newTaskStartDate || new Date().toISOString().split('T')[0],
-        status: newTaskStatus,
-        notes: newTaskNotes.trim()
-      }]);
+    if (!newTask.trim()) return;
+
+    setSubmitting(true);
+    const { error } = await addTask({
+      title: newTask.trim(),
+      priority: newTaskPriority,
+      status: newTaskStatus,
+      start_date: newTaskStartDate || new Date().toISOString().split('T')[0],
+      notes: newTaskNotes.trim()
+    });
+
+    if (!error) {
       setNewTask('');
       setNewTaskPriority('medium');
       setNewTaskStartDate('');
-      setNewTaskStatus('not-started');
+      setNewTaskStatus('pending');
       setNewTaskNotes('');
     }
+    setSubmitting(false);
   };
 
-  const toggleTask = (id: number) => {
-    setTasks(tasks.map(task => {
-      if (task.id === id) {
-        const newCompleted = !task.completed;
-        return { 
-          ...task, 
-          completed: newCompleted,
-          status: newCompleted ? 'completed' : 'in-progress'
-        };
-      }
-      return task;
-    }));
+  const handleToggleTask = async (id: string) => {
+    await toggleTask(id);
   };
 
-  const updateTaskStatus = (id: number, newStatus: Status) => {
-    setTasks(tasks.map(task => {
-      if (task.id === id) {
-        return { 
-          ...task, 
-          status: newStatus,
-          completed: newStatus === 'completed'
-        };
-      }
-      return task;
-    }));
+  const handleUpdateTaskStatus = async (id: string, newStatus: Status) => {
+    await updateTask(id, { status: newStatus });
   };
 
-  const deleteTask = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const handleDeleteTask = async (id: string) => {
+    await deleteTask(id);
   };
 
   const getPriorityIcon = (priority: Priority) => {
@@ -125,27 +73,23 @@ function Dashboard() {
 
   const getStatusIcon = (status: Status) => {
     switch (status) {
-      case 'not-started':
+      case 'pending':
         return <Clock className="w-4 h-4" />;
       case 'in-progress':
         return <Play className="w-4 h-4" />;
-      case 'completed':
+      case 'done':
         return <CheckCircle2 className="w-4 h-4" />;
-      case 'on-hold':
-        return <Pause className="w-4 h-4" />;
     }
   };
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case 'not-started':
+      case 'pending':
         return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'in-progress':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'completed':
+      case 'done':
         return 'bg-green-100 text-green-800 border-green-200';
-      case 'on-hold':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
     }
   };
 
@@ -177,7 +121,7 @@ function Dashboard() {
 
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     const priorityOrder = { high: 3, medium: 2, low: 1 };
-    const statusOrder = { 'in-progress': 4, 'not-started': 3, 'on-hold': 2, 'completed': 1 };
+    const statusOrder = { 'in-progress': 4, 'pending': 3, 'done': 1 };
     
     if (a.status !== b.status) {
       return statusOrder[b.status] - statusOrder[a.status];
@@ -194,6 +138,17 @@ function Dashboard() {
     if (status === 'all') return tasks.length;
     return tasks.filter(task => task.status === status).length;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-white flex items-center justify-center">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center">
+          <Loader className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your tasks...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-white relative overflow-hidden">
@@ -249,10 +204,20 @@ function Dashboard() {
           Your Tasks
         </h1>
 
+        {/* Error Message */}
+        {error && (
+          <div className="w-full max-w-6xl mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <p className="text-red-700 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
+
         {/* Task Management Section */}
         <div className="w-full max-w-6xl">
           {/* Add New Task Form */}
-          <form onSubmit={addTask} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8">
+          <form onSubmit={handleAddTask} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column */}
               <div className="space-y-4">
@@ -265,6 +230,7 @@ function Dashboard() {
                     placeholder="Enter task name"
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     required
+                    disabled={submitting}
                   />
                 </div>
 
@@ -275,6 +241,7 @@ function Dashboard() {
                       value={newTaskPriority}
                       onChange={(e) => setNewTaskPriority(e.target.value as Priority)}
                       className="w-full px-3 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white"
+                      disabled={submitting}
                     >
                       <option value="high">High Priority</option>
                       <option value="medium">Medium Priority</option>
@@ -288,11 +255,11 @@ function Dashboard() {
                       value={newTaskStatus}
                       onChange={(e) => setNewTaskStatus(e.target.value as Status)}
                       className="w-full px-3 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white"
+                      disabled={submitting}
                     >
-                      <option value="not-started">Not Started</option>
+                      <option value="pending">Pending</option>
                       <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                      <option value="on-hold">On Hold</option>
+                      <option value="done">Done</option>
                     </select>
                   </div>
                 </div>
@@ -304,6 +271,7 @@ function Dashboard() {
                     value={newTaskStartDate}
                     onChange={(e) => setNewTaskStartDate(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                    disabled={submitting}
                   />
                 </div>
               </div>
@@ -318,15 +286,26 @@ function Dashboard() {
                     placeholder="Add any additional notes or details..."
                     rows={6}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                    disabled={submitting}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                  disabled={submitting}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  <Plus className="w-5 h-5" />
-                  <span>Add Task</span>
+                  {submitting ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>Adding Task...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      <span>Add Task</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -399,16 +378,15 @@ function Dashboard() {
                   </span>
                 </button>
                 
-                {(['not-started', 'in-progress', 'completed', 'on-hold'] as Status[]).map((status) => (
+                {(['pending', 'in-progress', 'done'] as Status[]).map((status) => (
                   <button
                     key={status}
                     onClick={() => setStatusFilter(status)}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center gap-2 ${
                       statusFilter === status
-                        ? status === 'not-started' ? 'bg-gray-500 text-white shadow-lg' :
+                        ? status === 'pending' ? 'bg-gray-500 text-white shadow-lg' :
                           status === 'in-progress' ? 'bg-blue-500 text-white shadow-lg' :
-                          status === 'completed' ? 'bg-green-500 text-white shadow-lg' :
-                          'bg-yellow-500 text-white shadow-lg'
+                          'bg-green-500 text-white shadow-lg'
                         : `${getStatusColor(status)} hover:opacity-80`
                     }`}
                   >
@@ -433,14 +411,14 @@ function Dashboard() {
                 {/* Main Task Row */}
                 <div className="p-4 flex items-center gap-4">
                   <button
-                    onClick={() => toggleTask(task.id)}
+                    onClick={() => handleToggleTask(task.id)}
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
-                      task.completed
+                      task.status === 'done'
                         ? 'bg-green-500 border-green-500 text-white'
                         : 'border-gray-300 hover:border-blue-500'
                     }`}
                   >
-                    {task.completed && <CheckSquare className="w-4 h-4" />}
+                    {task.status === 'done' && <CheckSquare className="w-4 h-4" />}
                   </button>
                   
                   {/* Priority Badge */}
@@ -457,18 +435,18 @@ function Dashboard() {
                   
                   <span
                     className={`flex-1 text-lg transition-all duration-300 ${
-                      task.completed
+                      task.status === 'done'
                         ? 'text-gray-500 line-through'
                         : 'text-gray-800'
                     }`}
                   >
-                    {task.text}
+                    {task.title}
                   </span>
 
                   {/* Start Date */}
                   <div className="flex items-center gap-1 text-sm text-gray-600">
                     <Calendar className="w-4 h-4" />
-                    <span>{formatDate(task.startDate)}</span>
+                    <span>{formatDate(task.start_date)}</span>
                   </div>
 
                   {/* Notes Indicator */}
@@ -487,7 +465,7 @@ function Dashboard() {
                   </button>
                   
                   <button
-                    onClick={() => deleteTask(task.id)}
+                    onClick={() => handleDeleteTask(task.id)}
                     className="text-red-500 hover:text-red-700 font-medium px-3 py-1 rounded-lg hover:bg-red-50 transition-all duration-300"
                   >
                     Delete
@@ -503,13 +481,12 @@ function Dashboard() {
                         <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
                         <select
                           value={task.status}
-                          onChange={(e) => updateTaskStatus(task.id, e.target.value as Status)}
+                          onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as Status)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white"
                         >
-                          <option value="not-started">Not Started</option>
+                          <option value="pending">Pending</option>
                           <option value="in-progress">In Progress</option>
-                          <option value="completed">Completed</option>
-                          <option value="on-hold">On Hold</option>
+                          <option value="done">Done</option>
                         </select>
                       </div>
 
@@ -519,7 +496,7 @@ function Dashboard() {
                         <div className="text-sm text-gray-600 space-y-1">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            <span>Start Date: {formatDate(task.startDate)}</span>
+                            <span>Start Date: {formatDate(task.start_date)}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             {getPriorityIcon(task.priority)}
