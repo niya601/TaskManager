@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { CheckSquare, Plus, LogOut, ArrowLeft, Filter, AlertCircle, Circle, Minus, Calendar, FileText, Clock, Play, Pause, CheckCircle2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 type Priority = 'high' | 'medium' | 'low';
 type Status = 'not-started' | 'in-progress' | 'completed' | 'on-hold';
@@ -16,6 +17,7 @@ interface Task {
 }
 
 function Dashboard() {
+  const { user, signOut } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([
     { 
       id: 1, 
@@ -54,6 +56,10 @@ function Dashboard() {
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [expandedTask, setExpandedTask] = useState<number | null>(null);
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const addTask = (e: React.FormEvent) => {
     e.preventDefault();
@@ -213,13 +219,20 @@ function Dashboard() {
           <span className="font-medium">Back to Home</span>
         </Link>
         
-        <Link 
-          to="/" 
-          className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
-        >
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
-        </Link>
+        <div className="flex items-center gap-4">
+          {user && (
+            <div className="text-white/90 text-sm">
+              Welcome, {user.user_metadata?.full_name || user.email}
+            </div>
+          )}
+          <button 
+            onClick={handleSignOut}
+            className="flex items-center gap-2 text-white/90 hover:text-white transition-colors duration-300 bg-white/10 backdrop-blur-sm hover:bg-white/20 px-4 py-2 rounded-lg"
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-medium">Logout</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}

@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
-import { Mail, ArrowLeft, Send } from 'lucide-react';
+import { Mail, ArrowLeft, Send, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function ForgotPassword() {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { resetPassword } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle forgot password logic here
-    console.log('Password reset request for:', email);
-    setIsSubmitted(true);
+    setLoading(true);
+    setError('');
+
+    try {
+      const { error } = await resetPassword(email);
+      
+      if (error) {
+        setError(error.message);
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,6 +81,14 @@ function ForgotPassword() {
         <div className="w-full max-w-md">
           {!isSubmitted ? (
             <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 space-y-6">
+              {/* Error Message */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+              )}
+
               {/* Email Field */}
               <div className="space-y-2">
                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
@@ -81,6 +106,7 @@ function ForgotPassword() {
                     className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
                     placeholder="Enter your email address"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -88,10 +114,20 @@ function ForgotPassword() {
               {/* Send Reset Link Button */}
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-3 mt-8"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 flex items-center justify-center gap-3 mt-8"
               >
-                <Send className="w-5 h-5" />
-                <span className="text-lg">Send Reset Link</span>
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span className="text-lg">Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    <span className="text-lg">Send Reset Link</span>
+                  </>
+                )}
               </button>
 
               {/* Additional Links */}
@@ -108,7 +144,7 @@ function ForgotPassword() {
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 text-center">
               <div className="mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Send className="w-8 h-8 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-2">Email Sent!</h3>
                 <p className="text-gray-600">
@@ -125,7 +161,11 @@ function ForgotPassword() {
                 </Link>
                 
                 <button
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setEmail('');
+                    setError('');
+                  }}
                   className="block w-full text-gray-600 hover:text-gray-800 font-medium py-2 transition-colors duration-300"
                 >
                   Send to a different email

@@ -1,8 +1,11 @@
 import React from 'react';
 import { CheckSquare, LogIn, UserPlus, LayoutDashboard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 function Home() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-400 via-blue-300 to-white relative overflow-hidden">
       {/* Background Pattern Overlay */}
@@ -30,7 +33,7 @@ function Home() {
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white text-center mb-4 tracking-tight">
           Welcome to
           <span className="block bg-gradient-to-r from-white via-blue-100 to-sky-200 bg-clip-text text-transparent">
-            My Task Manager
+            TaskFlow Pro
           </span>
         </h1>
 
@@ -41,23 +44,34 @@ function Home() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-6 w-full max-w-4xl px-4">
-          {/* Login Button */}
-          <Link to="/login" className="group flex-1 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
-            <LogIn className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-xl">Login</span>
-          </Link>
+          {user ? (
+            // Show Dashboard button if user is logged in
+            <Link to="/dashboard" className="group flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
+              <LayoutDashboard className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+              <span className="text-xl">Go to Dashboard</span>
+            </Link>
+          ) : (
+            // Show Login/Signup buttons if user is not logged in
+            <>
+              {/* Login Button */}
+              <Link to="/login" className="group flex-1 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
+                <LogIn className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                <span className="text-xl">Login</span>
+              </Link>
 
-          {/* Signup Button */}
-          <Link to="/signup" className="group flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
-            <UserPlus className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-xl">Sign Up</span>
-          </Link>
+              {/* Signup Button */}
+              <Link to="/signup" className="group flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
+                <UserPlus className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                <span className="text-xl">Sign Up</span>
+              </Link>
 
-          {/* Dashboard Button */}
-          <Link to="/dashboard" className="group flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
-            <LayoutDashboard className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-xl">Go to Dashboard</span>
-          </Link>
+              {/* Dashboard Button (Demo) */}
+              <Link to="/dashboard" className="group flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 min-h-[80px]">
+                <LayoutDashboard className="w-6 h-6 group-hover:scale-110 transition-transform duration-300" />
+                <span className="text-xl">Try Demo</span>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Feature Highlights */}
@@ -87,8 +101,8 @@ function Home() {
               <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <UserPlus className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-gray-800 font-semibold text-lg mb-2">Team Collaboration</h3>
-              <p className="text-gray-600 text-sm">Work together and share tasks seamlessly</p>
+              <h3 className="text-gray-800 font-semibold text-lg mb-2">Secure Authentication</h3>
+              <p className="text-gray-600 text-sm">Your data is safe with enterprise-grade security</p>
             </div>
           </div>
         </div>
