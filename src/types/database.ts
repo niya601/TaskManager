@@ -40,7 +40,7 @@ export interface Database {
         Row: {
           id: string
           user_id: string
-          theme: 'light' | 'dark' | 'classic-dark' | 'system'
+          theme: 'light' | 'classic-dark'
           feature_previews: boolean
           command_menu_enabled: boolean
           created_at: string
@@ -49,7 +49,7 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          theme?: 'light' | 'dark' | 'classic-dark' | 'system'
+          theme?: 'light' | 'classic-dark'
           feature_previews?: boolean
           command_menu_enabled?: boolean
           created_at?: string
@@ -58,7 +58,7 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
-          theme?: 'light' | 'dark' | 'classic-dark' | 'system'
+          theme?: 'light' | 'classic-dark'
           feature_previews?: boolean
           command_menu_enabled?: boolean
           created_at?: string

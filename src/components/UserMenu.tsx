@@ -23,6 +23,7 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
   };
 
   const handleThemeChange = async (newTheme: 'light' | 'classic-dark') => {
+    console.log('Changing theme to:', newTheme); // Debug log
     await updateTheme(newTheme);
   };
 
@@ -62,8 +63,8 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
   if (!isOpen) return null;
 
   const themeOptions = [
-    { value: 'light', label: 'Light', icon: <div className="w-2 h-2 border border-current rounded-full" /> },
-    { value: 'classic-dark', label: 'Classic Dark', icon: <div className="w-2 h-2 bg-current rounded-full" /> },
+    { value: 'light', label: 'Light' },
+    { value: 'classic-dark', label: 'Classic Dark' },
   ];
 
   return (

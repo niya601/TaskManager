@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
-type Theme = 'light' | 'dark' | 'classic-dark' | 'system';
+type Theme = 'light' | 'classic-dark';
 
 interface UserPreferences {
   theme: Theme;
@@ -12,7 +12,7 @@ interface UserPreferences {
 
 interface ThemeContextType {
   theme: Theme;
-  actualTheme: 'light' | 'dark' | 'classic-dark';
+  actualTheme: 'light' | 'classic-dark';
   preferences: UserPreferences;
   loading: boolean;
   updateTheme: (theme: Theme) => Promise<void>;
@@ -38,19 +38,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
   const [loading, setLoading] = useState(true);
 
-  // Get system theme preference
-  const getSystemTheme = (): 'light' | 'dark' => {
-    if (typeof window !== 'undefined') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    return 'light';
-  };
-
   // Calculate actual theme based on preference
-  const getActualTheme = (theme: Theme): 'light' | 'dark' | 'classic-dark' => {
-    if (theme === 'system') {
-      return getSystemTheme();
-    }
+  const getActualTheme = (theme: Theme): 'light' | 'classic-dark' => {
     return theme;
   };
 
@@ -75,8 +64,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
+        // Map database theme values to our simplified theme system
+        let mappedTheme: Theme = 'light';
+        if (data.theme === 'classic-dark' || data.theme === 'dark') {
+          mappedTheme = 'classic-dark';
+        }
+
         setPreferences({
-          theme: data.theme,
+          theme: mappedTheme,
           feature_previews: data.feature_previews,
           command_menu_enabled: data.command_menu_enabled,
         });
@@ -113,19 +108,31 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Update theme
   const updateTheme = async (theme: Theme) => {
-    if (!user) return;
+    if (!user) {
+      // For non-authenticated users, just update local state
+      setPreferences(prev => ({ ...prev, theme }));
+      return;
+    }
 
     try {
       const { error } = await supabase
         .from('user_preferences')
-        .update({ theme })
-        .eq('user_id', user.id);
+        .upsert({
+          user_id: user.id,
+          theme: theme,
+          feature_previews: preferences.feature_previews,
+          command_menu_enabled: preferences.command_menu_enabled,
+        }, {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
 
       setPreferences(prev => ({ ...prev, theme }));
     } catch (error) {
       console.error('Error updating theme:', error);
+      // Still update local state even if database update fails
+      setPreferences(prev => ({ ...prev, theme }));
     }
   };
 
@@ -159,21 +166,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     // Set data attribute for CSS
     root.setAttribute('data-theme', actualTheme);
+
+    console.log('Theme applied:', actualTheme); // Debug log
   }, [actualTheme]);
-
-  // Listen for system theme changes
-  useEffect(() => {
-    if (preferences.theme === 'system') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      const handleChange = () => {
-        // Force re-render to update actualTheme
-        setPreferences(prev => ({ ...prev }));
-      };
-
-      mediaQuery.addEventListener('change', handleChange);
-      return () => mediaQuery.removeEventListener('change', handleChange);
-    }
-  }, [preferences.theme]);
 
   // Load preferences when user changes
   useEffect(() => {
