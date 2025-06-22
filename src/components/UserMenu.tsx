@@ -1,10 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { 
   Settings, 
-  Sun, 
-  Moon, 
-  Monitor, 
-  Palette,
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -26,7 +22,7 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
     onClose();
   };
 
-  const handleThemeChange = async (newTheme: 'light' | 'dark' | 'classic-dark' | 'system') => {
+  const handleThemeChange = async (newTheme: 'light' | 'classic-dark') => {
     await updateTheme(newTheme);
   };
 
@@ -66,10 +62,8 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
   if (!isOpen) return null;
 
   const themeOptions = [
-    { value: 'dark', label: 'Dark', icon: <div className="w-2 h-2 bg-current rounded-full" /> },
     { value: 'light', label: 'Light', icon: <div className="w-2 h-2 border border-current rounded-full" /> },
-    { value: 'classic-dark', label: 'Classic Dark', icon: <div className="w-2 h-2 border border-current rounded-full" /> },
-    { value: 'system', label: 'System', icon: <div className="w-2 h-2 border border-current rounded-full" /> },
+    { value: 'classic-dark', label: 'Classic Dark', icon: <div className="w-2 h-2 bg-current rounded-full" /> },
   ];
 
   return (
