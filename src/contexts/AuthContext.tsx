@@ -8,7 +8,7 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string, name: string) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
-  signOut: () => Promise<void>
+  signOut: () => Promise<{ error: any }>
   resetPassword: (email: string) => Promise<{ error: any }>
 }
 
@@ -69,7 +69,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    
+    // If the error is about session not existing, treat it as successful logout
+    // since the user is effectively already logged out
+    if (error && error.message === 'Session from session_id claim in JWT does not exist') {
+      return { error: null }
+    }
+    
+    return { error }
   }
 
   const resetPassword = async (email: string) => {
