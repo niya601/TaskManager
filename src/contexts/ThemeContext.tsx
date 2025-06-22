@@ -70,6 +70,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           mappedTheme = 'classic-dark';
         }
 
+        console.log('Loaded theme from database:', data.theme, '-> mapped to:', mappedTheme);
+
         setPreferences({
           theme: mappedTheme,
           feature_previews: data.feature_previews,
@@ -101,6 +103,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         }]);
 
       if (error) throw error;
+      console.log('Created default preferences');
     } catch (error) {
       console.error('Error creating default preferences:', error);
     }
@@ -108,9 +111,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Update theme
   const updateTheme = async (theme: Theme) => {
+    console.log('updateTheme called with:', theme);
+    
     if (!user) {
       // For non-authenticated users, just update local state
       setPreferences(prev => ({ ...prev, theme }));
+      console.log('Updated theme for non-authenticated user');
       return;
     }
 
@@ -129,10 +135,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       setPreferences(prev => ({ ...prev, theme }));
+      console.log('Theme updated in database and state:', theme);
     } catch (error) {
       console.error('Error updating theme:', error);
       // Still update local state even if database update fails
       setPreferences(prev => ({ ...prev, theme }));
+      console.log('Theme updated in local state only:', theme);
     }
   };
 
@@ -158,7 +166,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = document.documentElement;
     
-    // Remove all theme classes
+    console.log('Applying theme to DOM:', actualTheme);
+    
+    // Remove all theme classes first
     root.classList.remove('light', 'dark', 'classic-dark');
     
     // Add current theme class
@@ -167,7 +177,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Set data attribute for CSS
     root.setAttribute('data-theme', actualTheme);
 
-    console.log('Theme applied:', actualTheme); // Debug log
+    // Force a repaint to ensure styles are applied
+    root.style.display = 'none';
+    root.offsetHeight; // Trigger reflow
+    root.style.display = '';
+
+    console.log('Theme applied to DOM. Classes:', root.classList.toString());
+    console.log('Data theme attribute:', root.getAttribute('data-theme'));
   }, [actualTheme]);
 
   // Load preferences when user changes

@@ -2,31 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme-specific styles */
-.classic-dark {
-  --tw-bg-opacity: 1;
-  background-color: rgb(15 23 42 / var(--tw-bg-opacity));
-  color: rgb(248 250 252);
-}
-
-/* Custom scrollbar for dark themes */
-.classic-dark::-webkit-scrollbar {
-  width: 8px;
-}
-
-.classic-dark::-webkit-scrollbar-track {
-  background: rgb(31 41 55);
-}
-
-.classic-dark::-webkit-scrollbar-thumb {
-  background: rgb(75 85 99);
-  border-radius: 4px;
-}
-
-.classic-dark::-webkit-scrollbar-thumb:hover {
-  background: rgb(107 114 128);
-}
-
 /* Smooth transitions for theme changes */
 * {
   transition-property: background-color, border-color, color, fill, stroke;
@@ -34,24 +9,151 @@
   transition-duration: 200ms;
 }
 
-/* Ensure classic-dark theme overrides */
-html.classic-dark,
+/* Classic Dark Theme Styles */
+html.classic-dark {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
 html.classic-dark body {
-  background-color: rgb(15 23 42) !important;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Classic Dark Theme - Override all backgrounds */
+.classic-dark {
+  --tw-bg-opacity: 1;
+  background-color: rgb(15 23 42 / var(--tw-bg-opacity)) !important;
   color: rgb(248 250 252) !important;
 }
 
-/* Debug styles to verify theme is applied */
+/* Classic Dark - Gradient backgrounds */
+html.classic-dark .bg-gradient-to-br {
+  background: linear-gradient(to bottom right, #000000, #1f2937, #374151) !important;
+}
+
+/* Classic Dark - Card backgrounds */
+html.classic-dark .bg-white\/90,
+html.classic-dark .bg-white\/95 {
+  background-color: rgba(31, 41, 55, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+html.classic-dark .bg-white\/80 {
+  background-color: rgba(31, 41, 55, 0.8) !important;
+  color: #f8fafc !important;
+}
+
+/* Classic Dark - Form inputs */
+html.classic-dark input,
+html.classic-dark textarea,
+html.classic-dark select {
+  background-color: #374151 !important;
+  color: #f8fafc !important;
+  border-color: #4b5563 !important;
+}
+
+html.classic-dark input::placeholder,
+html.classic-dark textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+/* Classic Dark - Buttons */
+html.classic-dark .bg-gray-100 {
+  background-color: #374151 !important;
+  color: #f8fafc !important;
+}
+
+html.classic-dark .bg-gray-50\/50 {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+/* Classic Dark - Text colors */
+html.classic-dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+html.classic-dark .text-gray-700 {
+  color: #e5e7eb !important;
+}
+
+html.classic-dark .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+html.classic-dark .text-gray-500 {
+  color: #9ca3af !important;
+}
+
+/* Classic Dark - Borders */
+html.classic-dark .border-gray-300 {
+  border-color: #4b5563 !important;
+}
+
+html.classic-dark .border-gray-200 {
+  border-color: #374151 !important;
+}
+
+/* Classic Dark - Hover states */
+html.classic-dark .hover\:bg-gray-200:hover {
+  background-color: #4b5563 !important;
+}
+
+html.classic-dark .hover\:bg-gray-100:hover {
+  background-color: #374151 !important;
+}
+
+/* Classic Dark - Priority and status badges */
+html.classic-dark .bg-red-50 {
+  background-color: rgba(153, 27, 27, 0.3) !important;
+}
+
+html.classic-dark .bg-orange-50 {
+  background-color: rgba(154, 52, 18, 0.3) !important;
+}
+
+html.classic-dark .bg-green-50 {
+  background-color: rgba(20, 83, 45, 0.3) !important;
+}
+
+html.classic-dark .bg-blue-50 {
+  background-color: rgba(30, 58, 138, 0.3) !important;
+}
+
+html.classic-dark .bg-gray-50 {
+  background-color: rgba(55, 65, 81, 0.3) !important;
+}
+
+/* Custom scrollbar for classic dark theme */
+html.classic-dark::-webkit-scrollbar {
+  width: 8px;
+}
+
+html.classic-dark::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+html.classic-dark::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+html.classic-dark::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Debug indicator - make visible to test */
 html.classic-dark::before {
-  content: "Classic Dark Theme Active";
+  content: "Classic Dark Active";
   position: fixed;
-  top: 0;
-  left: 0;
-  background: red;
+  top: 10px;
+  left: 10px;
+  background: #dc2626;
   color: white;
   padding: 4px 8px;
   font-size: 12px;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0; /* Hidden by default, can be made visible for debugging */
+  border-radius: 4px;
+  opacity: 1; /* Make visible for debugging */
 }

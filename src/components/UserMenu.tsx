@@ -23,8 +23,13 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
   };
 
   const handleThemeChange = async (newTheme: 'light' | 'classic-dark') => {
-    console.log('Changing theme to:', newTheme); // Debug log
-    await updateTheme(newTheme);
+    console.log('UserMenu: Changing theme from', theme, 'to', newTheme);
+    try {
+      await updateTheme(newTheme);
+      console.log('UserMenu: Theme change completed');
+    } catch (error) {
+      console.error('UserMenu: Error changing theme:', error);
+    }
   };
 
   // Close menu when clicking outside
@@ -66,6 +71,8 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
     { value: 'light', label: 'Light' },
     { value: 'classic-dark', label: 'Classic Dark' },
   ];
+
+  console.log('UserMenu: Current theme is', theme);
 
   return (
     <>
@@ -114,7 +121,10 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
               {themeOptions.map((option) => (
                 <button
                   key={option.value}
-                  onClick={() => handleThemeChange(option.value as any)}
+                  onClick={() => {
+                    console.log('UserMenu: Theme button clicked:', option.value);
+                    handleThemeChange(option.value as any);
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
                 >
                   <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
