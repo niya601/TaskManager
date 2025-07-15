@@ -48,11 +48,69 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Load user preferences
   const loadPreferences = async () => {
     if (!user) {
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
       setLoading(false);
       return;
     }
 
     try {
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn('Supabase environment variables not configured, using default preferences');
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn('Supabase environment variables not configured, using default preferences');
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn('Supabase environment variables not configured, using default preferences');
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Check if Supabase is properly configured
+      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+        console.warn('Supabase environment variables not configured. Using default preferences.');
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -60,7 +118,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        throw error;
+        console.warn('Error loading preferences, using defaults:', error.message);
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+        setLoading(false);
+        return;
       }
 
       if (data) {
@@ -82,7 +161,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         await createDefaultPreferences();
       }
     } catch (error) {
-      console.error('Error loading preferences:', error);
+      console.warn('Failed to connect to Supabase, using default preferences:', error);
+      // Set default preferences when connection fails
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
+      // Set default preferences when connection fails
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
+      // Set default preferences when connection fails
+      setPreferences({
+        theme: 'light',
+        feature_previews: false,
+        command_menu_enabled: true,
+      });
+      // Don't throw error, just use default preferences
     } finally {
       setLoading(false);
     }
@@ -91,6 +189,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Create default preferences
   const createDefaultPreferences = async () => {
     if (!user) return;
+
+    // Skip if Supabase is not configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -105,7 +208,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
       console.log('Created default preferences');
     } catch (error) {
-      console.error('Error creating default preferences:', error);
+      console.warn('Error creating default preferences:', error);
     }
   };
 
@@ -113,13 +216,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateTheme = async (theme: Theme) => {
     console.log('updateTheme called with:', theme);
     
-    if (!user) {
-      // For non-authenticated users, just update local state
-      setPreferences(prev => ({ ...prev, theme }));
+    // Always update local state first
+    setPreferences(prev => ({ ...prev, theme }));
+    
+    // Always update local state first
+    setPreferences(prev => ({ ...prev, theme }));
       console.log('Updated theme for non-authenticated user');
       return;
     }
 
+    // Check if Supabase is properly configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.warn('Supabase not configured, theme updated locally only');
+      return;
+    }
+
+    // Check if Supabase is properly configured
     try {
       const { error } = await supabase
         .from('user_preferences')
@@ -134,19 +246,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      setPreferences(prev => ({ ...prev, theme }));
       console.log('Theme updated in database and state:', theme);
     } catch (error) {
-      console.error('Error updating theme:', error);
-      // Still update local state even if database update fails
-      setPreferences(prev => ({ ...prev, theme }));
-      console.log('Theme updated in local state only:', theme);
+      console.warn('Failed to update theme in database, using local state only:', error);
     }
   };
 
   // Update preferences
   const updatePreferences = async (updates: Partial<UserPreferences>) => {
-    if (!user) return;
+    // Always update local state first
+    setPreferences(prev => ({ ...prev, ...updates }));
+    
+    if (!user) {
+      console.log('Updated preferences for non-authenticated user');
+      return;
+    }
+
+    // Check if Supabase is properly configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      console.warn('Supabase not configured, preferences updated locally only');
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -156,9 +276,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
 
-      setPreferences(prev => ({ ...prev, ...updates }));
+      console.log('Preferences updated in database');
     } catch (error) {
-      console.error('Error updating preferences:', error);
+      console.warn('Failed to update preferences in database, using local state only:', error);
     }
   };
 
