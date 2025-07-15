@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTasks } from '../hooks/useTasks';
 import { useTheme } from '../contexts/ThemeContext';
 import UserMenu from './UserMenu';
+import SubtaskManager from './SubtaskManager';
 
 type Priority = 'high' | 'medium' | 'low';
 type Status = 'pending' | 'in-progress' | 'done';
@@ -524,6 +525,11 @@ function Dashboard() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* Subtask Manager */}
+                {expandedTask === task.id && (
+                  <SubtaskManager taskId={task.id} taskTitle={task.title} />
                 )}
               </div>
             ))}
