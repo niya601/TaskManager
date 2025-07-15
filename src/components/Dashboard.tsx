@@ -525,11 +525,8 @@ function Dashboard() {
                       </div>
                     )}
                   </div>
-                )}
-
-                {/* Subtask Manager */}
-                {expandedTask === task.id && (
-                  <SubtaskManager taskId={task.id} taskTitle={task.title} />
+                    {/* Subtask Manager */}
+                    <SubtaskManager taskId={task.id} taskTitle={task.title} />
                 )}
               </div>
             ))}
