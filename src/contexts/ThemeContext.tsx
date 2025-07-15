@@ -57,7 +57,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         theme: 'light',
         feature_previews: false,
         command_menu_enabled: true,
-      });
+    // Check if Supabase is properly configured before making any requests
+    if (!isSupabaseConfigured) {
       setPreferences({
         theme: 'light',
         feature_previews: false,
@@ -98,18 +99,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setPreferences({
           theme: 'light',
           feature_previews: false,
-          command_menu_enabled: true,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase environment variables not configured. Using default preferences.');
-        setLoading(false);
-        return;
-      }
 
       const { data, error } = await supabase
         .from('user_preferences')
@@ -190,8 +179,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const createDefaultPreferences = async () => {
     if (!user) return;
 
-    // Skip if Supabase is not configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    if (!isSupabaseConfigured) {
       return;
     }
 
@@ -219,20 +207,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Always update local state first
     setPreferences(prev => ({ ...prev, theme }));
     
-    // Always update local state first
-    setPreferences(prev => ({ ...prev, theme }));
     if (!user) {
       console.log('Updated theme for non-authenticated user');
       return;
     }
 
-    // Check if Supabase is properly configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    if (!isSupabaseConfigured) {
       console.warn('Supabase not configured, theme updated locally only');
       return;
     }
 
-    // Check if Supabase is properly configured
     try {
       const { error } = await supabase
         .from('user_preferences')
@@ -263,8 +247,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Check if Supabase is properly configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    if (!isSupabaseConfigured) {
       console.warn('Supabase not configured, preferences updated locally only');
       return;
     }
