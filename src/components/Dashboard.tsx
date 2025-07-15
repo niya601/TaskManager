@@ -483,50 +483,53 @@ function Dashboard() {
 
                 {/* Expanded Details */}
                 {expandedTask === task.id && (
-                  <div className="border-t border-gray-200 dark:border-gray-700 classic-dark:border-gray-600 p-4 bg-gray-50/50 dark:bg-gray-700/30 classic-dark:bg-gray-800/30">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Status Update */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Update Status</label>
-                        <select
-                          value={task.status}
-                          onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as Status)}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="in-progress">In Progress</option>
-                          <option value="done">Done</option>
-                        </select>
-                      </div>
+                  <>
+                    <div className="border-t border-gray-200 dark:border-gray-700 classic-dark:border-gray-600 p-4 bg-gray-50/50 dark:bg-gray-700/30 classic-dark:bg-gray-800/30">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Status Update */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Update Status</label>
+                          <select
+                            value={task.status}
+                            onChange={(e) => handleUpdateTaskStatus(task.id, e.target.value as Status)}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="done">Done</option>
+                          </select>
+                        </div>
 
-                      {/* Task Details */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Task Details</label>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 classic-dark:text-gray-300 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
-                            <span>Start Date: {formatDate(task.start_date)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getPriorityIcon(task.priority)}
-                            <span>Priority: {task.priority}</span>
+                        {/* Task Details */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Task Details</label>
+                          <div className="text-sm text-gray-600 dark:text-gray-400 classic-dark:text-gray-300 space-y-1">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4" />
+                              <span>Start Date: {formatDate(task.start_date)}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getPriorityIcon(task.priority)}
+                              <span>Priority: {task.priority}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
+
+                      {/* Notes Section */}
+                      {task.notes && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Notes</label>
+                          <div className="bg-white dark:bg-gray-700 classic-dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-600 classic-dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 classic-dark:text-gray-200">
+                            {task.notes}
+                          </div>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Notes Section */}
-                    {task.notes && (
-                      <div className="mt-4">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Notes</label>
-                        <div className="bg-white dark:bg-gray-700 classic-dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-600 classic-dark:border-gray-700 text-sm text-gray-700 dark:text-gray-300 classic-dark:text-gray-200">
-                          {task.notes}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                    
                     {/* Subtask Manager */}
                     <SubtaskManager taskId={task.id} taskTitle={task.title} />
+                  </>
                 )}
               </div>
             ))}
