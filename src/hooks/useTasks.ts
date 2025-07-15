@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { Database } from '../types/database'
-import { isSupabaseConfigured } from '../lib/supabase'
 
 type Task = Database['public']['Tables']['tasks']['Row']
 type TaskInsert = Database['public']['Tables']['tasks']['Insert']
@@ -42,7 +41,7 @@ export function useTasks() {
   // Add task
   const addTask = async (taskData: Omit<TaskInsert, 'user_id'>) => {
     if (!user) return { error: 'User not authenticated' }
-    
+
     try {
       const { data, error } = await supabase
         .from('tasks')

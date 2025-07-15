@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
 
 type Theme = 'light' | 'classic-dark';
@@ -48,38 +48,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Load user preferences
   const loadPreferences = async () => {
     if (!user) {
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (error) {
-        // PGRST116 = no rows returned, which is fine for new users
-        if (error.code === 'PGRST116') {
-          console.log('No existing preferences found, creating defaults for new user');
-          await createDefaultPreferences();
-        } else {
-          console.warn('Error loading preferences, using defaults:', error);
-          // Use defaults but don't throw error
-        }
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-          command_menu_enabled: true,
-        });
-      } else if (data) {
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
         // Map database theme values to our simplified theme system
         let mappedTheme: Theme = 'light';
         if (data.theme === 'classic-dark' || data.theme === 'dark') {
@@ -93,15 +77,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           feature_previews: data.feature_previews,
           command_menu_enabled: data.command_menu_enabled,
         });
+      } else {
+        // Create default preferences for new user
+        await createDefaultPreferences();
       }
-    } catch (networkError) {
-      console.warn('Network error loading preferences, using defaults:', networkError);
-      // Set default preferences when connection fails
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
+    } catch (error) {
+      console.error('Error loading preferences:', error);
     } finally {
       setLoading(false);
     }
@@ -121,13 +102,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           command_menu_enabled: true,
         }]);
 
-      if (error) {
-        console.warn('Error creating default preferences:', error);
-      } else {
-        console.log('Created default preferences');
-      }
+      if (error) throw error;
+      console.log('Created default preferences');
     } catch (error) {
-      console.warn('Error creating default preferences:', error);
+      console.error('Error creating default preferences:', error);
     }
   };
 
@@ -135,10 +113,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updateTheme = async (theme: Theme) => {
     console.log('updateTheme called with:', theme);
     
-    // Always update local state first
-    setPreferences(prev => ({ ...prev, theme }));
-    
     if (!user) {
+      // For non-authenticated users, just update local state
+      setPreferences(prev => ({ ...prev, theme }));
       console.log('Updated theme for non-authenticated user');
       return;
     }
@@ -155,25 +132,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           onConflict: 'user_id'
         });
 
-      if (error) {
-        console.warn('Failed to update theme in database, using local state only:', error);
-      } else {
-        console.log('Theme updated in database and state:', theme);
-      }
+      if (error) throw error;
+
+      setPreferences(prev => ({ ...prev, theme }));
+      console.log('Theme updated in database and state:', theme);
     } catch (error) {
-      console.warn('Failed to update theme in database, using local state only:', error);
+      console.error('Error updating theme:', error);
+      // Still update local state even if database update fails
+      setPreferences(prev => ({ ...prev, theme }));
+      console.log('Theme updated in local state only:', theme);
     }
   };
 
   // Update preferences
   const updatePreferences = async (updates: Partial<UserPreferences>) => {
-    // Always update local state first
-    setPreferences(prev => ({ ...prev, ...updates }));
-    
-    if (!user) {
-      console.log('Updated preferences for non-authenticated user');
-      return;
-    }
+    if (!user) return;
 
     try {
       const { error } = await supabase
@@ -181,13 +154,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .update(updates)
         .eq('user_id', user.id);
 
-      if (error) {
-        console.warn('Failed to update preferences in database, using local state only:', error);
-      } else {
-        console.log('Preferences updated in database');
-      }
+      if (error) throw error;
+
+      setPreferences(prev => ({ ...prev, ...updates }));
     } catch (error) {
-      console.warn('Failed to update preferences in database, using local state only:', error);
+      console.error('Error updating preferences:', error);
     }
   };
 

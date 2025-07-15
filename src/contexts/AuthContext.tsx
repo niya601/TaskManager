@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase, isSupabaseConfigured } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -48,10 +48,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signUp = async (email: string, password: string, name: string) => {
-    if (!isSupabaseConfigured) {
-      return { error: { message: 'Supabase not configured. Please set up your environment variables.' } }
-    }
-
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -65,10 +61,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
-      return { error: { message: 'Supabase not configured. Please set up your environment variables.' } }
-    }
-
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -77,10 +69,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) {
-      return { error: null }
-    }
-
     const { error } = await supabase.auth.signOut()
     
     // If the error is about session not existing, treat it as successful logout
@@ -93,10 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const resetPassword = async (email: string) => {
-    if (!isSupabaseConfigured) {
-      return { error: { message: 'Supabase not configured. Please set up your environment variables.' } }
-    }
-
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })

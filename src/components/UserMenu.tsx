@@ -1,10 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { 
   Settings, 
-  LogOut,
-  User
+  LogOut
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -97,45 +95,18 @@ function UserMenu({ isOpen, onClose, anchorRef }: UserMenuProps) {
         >
           {/* User Email Header */}
           <div className="px-4 py-3 border-b border-gray-700">
-            <div className="flex items-center gap-3">
-              {/* Profile Picture */}
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-700 border border-gray-600 flex-shrink-0">
-                {user?.user_metadata?.avatar_url ? (
-                  <img
-                    src={user.user_metadata.avatar_url}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-400" />
-                  </div>
-                )}
-              </div>
-              
-              {/* User Info */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white font-medium truncate">
-                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                </p>
-                <p className="text-xs text-gray-400 truncate">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
+            <p className="text-sm text-white font-medium truncate">
+              {user?.email}
+            </p>
           </div>
 
           {/* Menu Items */}
           <div className="py-2">
             {/* Account Preferences */}
-            <Link 
-              to="/account-preferences"
-              onClick={onClose}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors"
-            >
+            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800 transition-colors">
               <Settings className="w-4 h-4 flex-shrink-0" />
               <span>Account preferences</span>
-            </Link>
+            </button>
           </div>
 
           {/* Theme Section */}
