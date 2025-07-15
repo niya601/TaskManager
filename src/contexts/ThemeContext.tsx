@@ -48,11 +48,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Load user preferences
   const loadPreferences = async () => {
     if (!user) {
+      console.log('ThemeContext: No user, skipping preferences load');
       setLoading(false);
       return;
     }
 
+    console.log('ThemeContext: Loading preferences for user:', user.id);
+    
     try {
+      
+      // Test basic connectivity first
+      console.log('ThemeContext: Testing Supabase connection...');
+      
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -60,6 +67,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error && error.code !== 'PGRST116') {
+        console.error('ThemeContext: Supabase query error:', error);
         throw error;
       }
 
@@ -78,11 +86,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           command_menu_enabled: data.command_menu_enabled,
         });
       } else {
+        console.log('ThemeContext: No existing preferences found, creating defaults');
         // Create default preferences for new user
         await createDefaultPreferences();
       }
     } catch (error) {
-      console.error('Error loading preferences:', error);
+      console.error('ThemeContext: Error loading preferences:', error);
+      
+      // If it's a network error, fall back to default preferences without trying to create them
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        console.warn('ThemeContext: Network error detected, using default preferences without database');
+        setPreferences({
+          theme: 'light',
+          feature_previews: false,
+          command_menu_enabled: true,
+        });
+      }
     } finally {
       setLoading(false);
     }
