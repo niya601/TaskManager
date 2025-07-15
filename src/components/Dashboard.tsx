@@ -468,9 +468,19 @@ function Dashboard() {
                   {/* Expand/Collapse Button */}
                   <button
                     onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}
-                    className="text-gray-500 dark:text-gray-400 classic-dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 classic-dark:hover:text-gray-100 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 classic-dark:hover:bg-gray-800 transition-all duration-300"
+                    className="text-gray-500 dark:text-gray-400 classic-dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 classic-dark:hover:text-gray-100 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 classic-dark:hover:bg-gray-800 transition-all duration-300 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700"
                   >
-                    {expandedTask === task.id ? <X className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                    {expandedTask === task.id ? (
+                      <>
+                        <X className="w-4 h-4 mr-1" />
+                        <span className="text-xs">Close</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-1" />
+                        <span className="text-xs">Subtasks</span>
+                      </>
+                    )}
                   </button>
                   
                   <button
