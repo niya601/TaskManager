@@ -67,3 +67,8 @@ const createMockClient = () => ({
     }),
   }),
 })
+
+// Create and export the supabase client
+export const supabase = isSupabaseConfigured 
+  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
+  : createMockClient() as any
