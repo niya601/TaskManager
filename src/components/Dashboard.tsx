@@ -23,6 +23,7 @@ function Dashboard() {
   const [priorityFilter, setPriorityFilter] = useState<Priority | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<Status | 'all'>('all');
   const [expandedTask, setExpandedTask] = useState<string | null>(null);
+  const [showAddTaskForm, setShowAddTaskForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLButtonElement>(null);
@@ -46,6 +47,7 @@ function Dashboard() {
       setNewTaskStartDate('');
       setNewTaskStatus('pending');
       setNewTaskNotes('');
+      setShowAddTaskForm(false);
     }
     setSubmitting(false);
   };
@@ -225,100 +227,138 @@ function Dashboard() {
 
         {/* Task Management Section */}
         <div className="w-full max-w-6xl">
-          {/* Add New Task Form */}
-          <form onSubmit={handleAddTask} className="bg-white/90 dark:bg-gray-800/90 classic-dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8 transition-colors duration-300">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Left Column */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Task Name</label>
-                  <input
-                    type="text"
-                    value={newTask}
-                    onChange={(e) => setNewTask(e.target.value)}
-                    placeholder="Enter task name"
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 classic-dark:placeholder-gray-500 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                    required
-                    disabled={submitting}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Priority</label>
-                    <select
-                      value={newTaskPriority}
-                      onChange={(e) => setNewTaskPriority(e.target.value as Priority)}
-                      className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                      disabled={submitting}
-                    >
-                      <option value="high">High Priority</option>
-                      <option value="medium">Medium Priority</option>
-                      <option value="low">Low Priority</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Status</label>
-                    <select
-                      value={newTaskStatus}
-                      onChange={(e) => setNewTaskStatus(e.target.value as Status)}
-                      className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                      disabled={submitting}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="done">Done</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Start Date</label>
-                  <input
-                    type="date"
-                    value={newTaskStartDate}
-                    onChange={(e) => setNewTaskStartDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
-                    disabled={submitting}
-                  />
-                </div>
-              </div>
-
-              {/* Right Column */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Notes</label>
-                  <textarea
-                    value={newTaskNotes}
-                    onChange={(e) => setNewTaskNotes(e.target.value)}
-                    placeholder="Add any additional notes or details..."
-                    rows={6}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 classic-dark:placeholder-gray-500 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
-                    disabled={submitting}
-                  />
-                </div>
-
+          {/* Add New Task Button/Form */}
+          <div className="bg-white/90 dark:bg-gray-800/90 classic-dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-xl mb-8 transition-colors duration-300">
+            {!showAddTaskForm ? (
+              /* Collapsed Add Task Button */
+              <div className="p-6">
                 <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 flex items-center justify-center gap-2"
+                  onClick={() => setShowAddTaskForm(true)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
                 >
-                  {submitting ? (
-                    <>
-                      <Loader className="w-5 h-5 animate-spin" />
-                      <span>Adding Task...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-5 h-5" />
-                      <span>Add Task</span>
-                    </>
-                  )}
+                  <Plus className="w-5 h-5" />
+                  <span>Add New Task</span>
                 </button>
               </div>
-            </div>
-          </form>
+            ) : (
+              /* Expanded Add Task Form */
+              <form onSubmit={handleAddTask} className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 classic-dark:text-gray-100">Add New Task</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddTaskForm(false)}
+                    className="text-gray-500 dark:text-gray-400 classic-dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 classic-dark:hover:text-gray-100 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 classic-dark:hover:bg-gray-800 transition-all duration-300"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Task Name</label>
+                      <input
+                        type="text"
+                        value={newTask}
+                        onChange={(e) => setNewTask(e.target.value)}
+                        placeholder="Enter task name"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 classic-dark:placeholder-gray-500 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                        required
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Priority</label>
+                        <select
+                          value={newTaskPriority}
+                          onChange={(e) => setNewTaskPriority(e.target.value as Priority)}
+                          className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          disabled={submitting}
+                        >
+                          <option value="high">High Priority</option>
+                          <option value="medium">Medium Priority</option>
+                          <option value="low">Low Priority</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Status</label>
+                        <select
+                          value={newTaskStatus}
+                          onChange={(e) => setNewTaskStatus(e.target.value as Status)}
+                          className="w-full px-3 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                          disabled={submitting}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="in-progress">In Progress</option>
+                          <option value="done">Done</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Start Date</label>
+                      <input
+                        type="date"
+                        value={newTaskStartDate}
+                        onChange={(e) => setNewTaskStartDate(e.target.value)}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+                        disabled={submitting}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 classic-dark:text-gray-200 mb-2">Notes</label>
+                      <textarea
+                        value={newTaskNotes}
+                        onChange={(e) => setNewTaskNotes(e.target.value)}
+                        placeholder="Add any additional notes or details..."
+                        rows={6}
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 classic-dark:border-gray-700 rounded-xl text-gray-900 dark:text-gray-100 classic-dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 classic-dark:placeholder-gray-500 bg-white dark:bg-gray-700 classic-dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 resize-none"
+                        disabled={submitting}
+                      />
+                    </div>
+
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddTaskForm(false)}
+                        className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        <X className="w-4 h-4" />
+                        <span>Cancel</span>
+                      </button>
+                      
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        {submitting ? (
+                          <>
+                            <Loader className="w-5 h-5 animate-spin" />
+                            <span>Adding...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Plus className="w-5 h-5" />
+                            <span>Add Task</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            )}
+          </div>
 
           {/* Filter Section */}
           <div className="bg-white/90 dark:bg-gray-800/90 classic-dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8 transition-colors duration-300">
