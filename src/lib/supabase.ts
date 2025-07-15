@@ -1,25 +1,37 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from '../types/database'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
-// Check if Supabase is properly configured with more detailed validation
+// Enhanced configuration check with better validation
 export const isSupabaseConfigured = !!(
   supabaseUrl && 
   supabaseAnonKey && 
-  supabaseUrl.startsWith('https://') && 
-  supabaseAnonKey.length > 20
+  supabaseUrl.trim().startsWith('https://') && 
+  supabaseAnonKey.trim().length > 20 &&
+  supabaseUrl.includes('.supabase.co')
 )
 
-// Debug logging for configuration
+// Enhanced debug logging
 console.log('Supabase Configuration Check:', {
   hasUrl: !!supabaseUrl,
+  urlValue: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'undefined',
   hasKey: !!supabaseAnonKey,
-  urlValid: supabaseUrl?.startsWith('https://'),
-  keyLength: supabaseAnonKey?.length,
+  keyValue: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 20)}...` : 'undefined',
+  urlValid: supabaseUrl?.trim().startsWith('https://'),
+  keyLength: supabaseAnonKey?.trim().length,
   isConfigured: isSupabaseConfigured
 })
+
+// If not configured, show helpful error message
+if (!isSupabaseConfigured) {
+  console.error('❌ Supabase Configuration Error:', {
+    url: supabaseUrl || 'MISSING',
+    key: supabaseAnonKey ? 'PROVIDED' : 'MISSING',
+    help: 'Please check your .env file contains VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY'
+  })
+}
 
 // Create a mock client for when Supabase is not configured
 const createMockClient = () => ({
@@ -55,7 +67,3 @@ const createMockClient = () => ({
     }),
   }),
 })
-
-export const supabase = isSupabaseConfigured 
-  ? createClient<Database>(supabaseUrl, supabaseAnonKey)
-  : createMockClient() as any
