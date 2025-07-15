@@ -53,13 +53,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase environment variables not configured. Using default preferences.');
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -89,13 +82,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         await createDefaultPreferences();
       }
     } catch (error) {
-      console.warn('Error loading preferences, using defaults:', error);
-      // Use default preferences if there's an error
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
+      console.error('Error loading preferences:', error);
     } finally {
       setLoading(false);
     }
@@ -104,11 +91,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Create default preferences
   const createDefaultPreferences = async () => {
     if (!user) return;
-
-    // Skip if Supabase is not configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      return;
-    }
 
     try {
       const { error } = await supabase
@@ -135,13 +117,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       // For non-authenticated users, just update local state
       setPreferences(prev => ({ ...prev, theme }));
       console.log('Updated theme for non-authenticated user');
-      return;
-    }
-
-    // Skip database update if Supabase is not configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setPreferences(prev => ({ ...prev, theme }));
-      console.log('Updated theme locally (Supabase not configured)');
       return;
     }
 
@@ -173,12 +148,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const updatePreferences = async (updates: Partial<UserPreferences>) => {
     if (!user) return;
 
-    // Skip database update if Supabase is not configured
-    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-      setPreferences(prev => ({ ...prev, ...updates }));
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from('user_preferences')
@@ -190,8 +159,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setPreferences(prev => ({ ...prev, ...updates }));
     } catch (error) {
       console.error('Error updating preferences:', error);
-      // Still update local state even if database update fails
-      setPreferences(prev => ({ ...prev, ...updates }));
     }
   };
 
