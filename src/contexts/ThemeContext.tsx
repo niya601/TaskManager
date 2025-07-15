@@ -53,13 +53,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         feature_previews: false,
         command_menu_enabled: true,
       });
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      }
-      )
+      setLoading(false);
+      return;
     }
+
     // Check if Supabase is properly configured before making any requests
     if (!isSupabaseConfigured) {
       setPreferences({
@@ -72,40 +69,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase environment variables not configured, using default preferences');
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-          command_menu_enabled: true,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase environment variables not configured, using default preferences');
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-          command_menu_enabled: true,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // Check if Supabase is properly configured
-      if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-        console.warn('Supabase environment variables not configured, using default preferences');
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-        }
-        )
-      }
-
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
@@ -114,20 +77,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
       if (error && error.code !== 'PGRST116') {
         console.warn('Error loading preferences, using defaults:', error.message);
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-          command_menu_enabled: true,
-        });
-        setLoading(false);
-        return;
-        setPreferences({
-          theme: 'light',
-          feature_previews: false,
-          command_menu_enabled: true,
-        });
-        setLoading(false);
-        return;
         setPreferences({
           theme: 'light',
           feature_previews: false,
@@ -157,18 +106,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.warn('Failed to connect to Supabase, using default preferences:', error);
-      // Set default preferences when connection fails
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
-      // Set default preferences when connection fails
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
       // Set default preferences when connection fails
       setPreferences({
         theme: 'light',
