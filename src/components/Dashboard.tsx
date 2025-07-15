@@ -6,6 +6,7 @@ import { useTasks } from '../hooks/useTasks';
 import { useTheme } from '../contexts/ThemeContext';
 import UserMenu from './UserMenu';
 import SubtaskManager from './SubtaskManager';
+import SmartSearch from './SmartSearch';
 
 type Priority = 'high' | 'medium' | 'low';
 type Status = 'pending' | 'in-progress' | 'done';
@@ -227,6 +228,9 @@ function Dashboard() {
 
         {/* Task Management Section */}
         <div className="w-full max-w-6xl">
+          {/* Smart Search */}
+          <SmartSearch />
+
           {/* Add New Task Button/Form */}
           <div className="bg-white/90 dark:bg-gray-800/90 classic-dark:bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-xl mb-8 transition-colors duration-300">
             {!showAddTaskForm ? (
