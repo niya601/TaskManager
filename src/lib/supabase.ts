@@ -4,8 +4,22 @@ import { Database } from '../types/database'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Check if Supabase is properly configured
-export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey)
+// Check if Supabase is properly configured with more detailed validation
+export const isSupabaseConfigured = !!(
+  supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl.startsWith('https://') && 
+  supabaseAnonKey.length > 20
+)
+
+// Debug logging for configuration
+console.log('Supabase Configuration Check:', {
+  hasUrl: !!supabaseUrl,
+  hasKey: !!supabaseAnonKey,
+  urlValid: supabaseUrl?.startsWith('https://'),
+  keyLength: supabaseAnonKey?.length,
+  isConfigured: isSupabaseConfigured
+})
 
 // Create a mock client for when Supabase is not configured
 const createMockClient = () => ({

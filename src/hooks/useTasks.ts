@@ -22,13 +22,6 @@ export function useTasks() {
       return
     }
 
-    if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured - using empty task list')
-      setTasks([])
-      setLoading(false)
-      return
-    }
-
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -50,10 +43,6 @@ export function useTasks() {
   const addTask = async (taskData: Omit<TaskInsert, 'user_id'>) => {
     if (!user) return { error: 'User not authenticated' }
     
-    if (!isSupabaseConfigured) {
-      return { error: 'Supabase not configured. Please set up your environment variables.' }
-    }
-
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -74,10 +63,6 @@ export function useTasks() {
 
   // Update task
   const updateTask = async (id: string, updates: TaskUpdate) => {
-    if (!isSupabaseConfigured) {
-      return { error: 'Supabase not configured. Please set up your environment variables.' }
-    }
-
     try {
       const { data, error } = await supabase
         .from('tasks')
@@ -99,10 +84,6 @@ export function useTasks() {
 
   // Delete task
   const deleteTask = async (id: string) => {
-    if (!isSupabaseConfigured) {
-      return { error: 'Supabase not configured. Please set up your environment variables.' }
-    }
-
     try {
       const { error } = await supabase
         .from('tasks')

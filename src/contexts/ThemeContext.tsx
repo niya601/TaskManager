@@ -58,16 +58,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Check if Supabase is properly configured before making any requests
-    if (!isSupabaseConfigured) {
-      setPreferences({
-        theme: 'light',
-        feature_previews: false,
-        command_menu_enabled: true,
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       const { data, error } = await supabase
         .from('user_preferences')
