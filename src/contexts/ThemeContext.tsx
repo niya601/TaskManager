@@ -221,6 +221,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     
     // Always update local state first
     setPreferences(prev => ({ ...prev, theme }));
+    if (!user) {
       console.log('Updated theme for non-authenticated user');
       return;
     }
