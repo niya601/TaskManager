@@ -40,41 +40,43 @@ function AccountPreferences() {
     setUploadSuccess(false);
 
     try {
-      // Convert file to base64 data URL for storage in user metadata
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const dataUrl = e.target?.result as string;
-        
-        try {
-          // Update user metadata with base64 image data
-          const { error: updateError } = await supabase.auth.updateUser({
-            data: { avatar_url: dataUrl }
-          });
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+      const filePath = fileName;
 
-          if (updateError) throw updateError;
+      // Upload file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('profile-pictures')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
 
-          setProfilePicture(dataUrl);
-          setUploadSuccess(true);
-          
-          // Clear success message after 3 seconds
-          setTimeout(() => setUploadSuccess(false), 3000);
-        } catch (error) {
-          console.error('Error updating profile picture:', error);
-          setUploadError(error instanceof Error ? error.message : 'Failed to update profile picture');
-        } finally {
-          setUploading(false);
-        }
-      };
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-pictures')
+        .getPublicUrl(filePath);
+
+      // Update user metadata with the public URL
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl }
+      });
+
+      if (updateError) throw updateError;
+
+      setProfilePicture(publicUrl);
+      setUploadSuccess(true);
       
-      reader.onerror = () => {
-        setUploadError('Failed to read the selected file');
-        setUploading(false);
-      };
-      
-      reader.readAsDataURL(file);
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000);
     } catch (error) {
       console.error('Error processing profile picture:', error);
       setUploadError(error instanceof Error ? error.message : 'Failed to process profile picture');
+    } finally {
+      setUploading(false);
       setUploading(false);
     }
   };
