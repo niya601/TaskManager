@@ -57,26 +57,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Check if Supabase is properly configured before making any requests
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
-        console.warn('Error loading preferences, using defaults:', error.message);
+      if (error) {
+        // PGRST116 = no rows returned, which is fine for new users
+        if (error.code === 'PGRST116') {
+          console.log('No existing preferences found, creating defaults for new user');
+          await createDefaultPreferences();
+        } else {
+          console.warn('Error loading preferences, using defaults:', error);
+          // Use defaults but don't throw error
+        }
         setPreferences({
           theme: 'light',
           feature_previews: false,
           command_menu_enabled: true,
         });
-        setLoading(false);
-        return;
-      }
-
-      if (data) {
+      } else if (data) {
         // Map database theme values to our simplified theme system
         let mappedTheme: Theme = 'light';
         if (data.theme === 'classic-dark' || data.theme === 'dark') {
@@ -90,19 +93,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           feature_previews: data.feature_previews,
           command_menu_enabled: data.command_menu_enabled,
         });
-      } else {
-        // Create default preferences for new user
-        await createDefaultPreferences();
       }
-    } catch (error) {
-      console.warn('Failed to connect to Supabase, using default preferences:', error);
+    } catch (networkError) {
+      console.warn('Network error loading preferences, using defaults:', networkError);
       // Set default preferences when connection fails
       setPreferences({
         theme: 'light',
         feature_previews: false,
         command_menu_enabled: true,
       });
-      // Don't throw error, just use default preferences
     } finally {
       setLoading(false);
     }
@@ -111,10 +110,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Create default preferences
   const createDefaultPreferences = async () => {
     if (!user) return;
-
-    if (!isSupabaseConfigured) {
-      return;
-    }
 
     try {
       const { error } = await supabase
@@ -126,8 +121,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           command_menu_enabled: true,
         }]);
 
-      if (error) throw error;
-      console.log('Created default preferences');
+      if (error) {
+        console.warn('Error creating default preferences:', error);
+      } else {
+        console.log('Created default preferences');
+      }
     } catch (error) {
       console.warn('Error creating default preferences:', error);
     }
@@ -145,11 +143,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured, theme updated locally only');
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from('user_preferences')
@@ -162,9 +155,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           onConflict: 'user_id'
         });
 
-      if (error) throw error;
-
-      console.log('Theme updated in database and state:', theme);
+      if (error) {
+        console.warn('Failed to update theme in database, using local state only:', error);
+      } else {
+        console.log('Theme updated in database and state:', theme);
+      }
     } catch (error) {
       console.warn('Failed to update theme in database, using local state only:', error);
     }
@@ -180,20 +175,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (!isSupabaseConfigured) {
-      console.warn('Supabase not configured, preferences updated locally only');
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from('user_preferences')
         .update(updates)
         .eq('user_id', user.id);
 
-      if (error) throw error;
-
-      console.log('Preferences updated in database');
+      if (error) {
+        console.warn('Failed to update preferences in database, using local state only:', error);
+      } else {
+        console.log('Preferences updated in database');
+      }
     } catch (error) {
       console.warn('Failed to update preferences in database, using local state only:', error);
     }
