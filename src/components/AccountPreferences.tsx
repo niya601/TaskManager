@@ -40,34 +40,52 @@ function AccountPreferences() {
     setUploadSuccess(false);
 
     try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = fileName;
+      // Try to upload to Supabase Storage first
+      let avatarUrl: string;
+      
+      try {
+        // Generate unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = fileName;
 
-      // Upload file to Supabase Storage
-      const { error: uploadError } = await supabase.storage
-        .from('profile-pictures')
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: true
+        // Upload file to Supabase Storage
+        const { error: uploadError } = await supabase.storage
+          .from('profile-pictures')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true
+          });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('profile-pictures')
+          .getPublicUrl(filePath);
+
+        avatarUrl = publicUrl;
+      } catch (storageError) {
+        // If storage upload fails (e.g., due to RLS policies), fall back to base64
+        console.warn('Storage upload failed, falling back to base64:', storageError);
+        
+        // Convert file to base64 data URL
+        const reader = new FileReader();
+        avatarUrl = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = () => reject(new Error('Failed to read file'));
+          reader.readAsDataURL(file);
         });
+      }
 
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(filePath);
-
-      // Update user metadata with the public URL
+      // Update user metadata with the avatar URL (either public URL or base64)
       const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl }
+        data: { avatar_url: avatarUrl }
       });
 
       if (updateError) throw updateError;
 
-      setProfilePicture(publicUrl);
+      setProfilePicture(avatarUrl);
       setUploadSuccess(true);
       
       // Clear success message after 3 seconds
@@ -76,7 +94,6 @@ function AccountPreferences() {
       console.error('Error processing profile picture:', error);
       setUploadError(error instanceof Error ? error.message : 'Failed to process profile picture');
     } finally {
-      setUploading(false);
       setUploading(false);
     }
   };
